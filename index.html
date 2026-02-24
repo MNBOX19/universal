@@ -18,9 +18,11 @@
         
         * { margin: 0; padding: 0; box-sizing: border-box; outline: none; user-select: none; -webkit-tap-highlight-color: transparent; }
         
-        body {
+        /* TRAVA ABSOLUTA DO CORPO PARA EVITAR BUG DE ROLAGEM NA TV */
+        html, body {
             background-color: var(--bg); color: #fff; font-family: 'Montserrat', sans-serif;
-            width: 100vw; height: 100dvh; min-height: 100vh; overflow: hidden;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100%; 
+            overflow: hidden !important; margin: 0; padding: 0;
         }
 
         .hide { display: none !important; }
@@ -31,7 +33,7 @@
 
         .focused { border: 3px solid #fff !important; background: var(--focus-bg) !important; color: #000 !important; transform: scale(1.02); z-index: 50; box-shadow: none !important; }
         #vid-box.focused { transform: none !important; border: 4px solid var(--gold) !important; box-shadow: none !important; z-index: 60; }
-        #vid-box.fs, #vid-box.fs.focused { transform: none !important; border: none !important; box-shadow: none !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100dvh !important; z-index: 9999 !important; background: #000; }
+        #vid-box.fs, #vid-box.fs.focused { transform: none !important; border: none !important; box-shadow: none !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100% !important; z-index: 9999 !important; background: #000; }
         .focused i, .focused span, .focused div { color: #000 !important; }
 
         /* PAINEL LOGIN & CONFIGURAÇÕES */
@@ -46,7 +48,7 @@
         .info-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; font-size: 14px; color: #ccc; }
         .info-row span { font-weight: bold; color: var(--gold); }
 
-        /* DASHBOARD PRINCIPAL - COM SCROLL */
+        /* DASHBOARD PRINCIPAL */
         #dash-layer { 
             display: flex; flex-direction: column; padding: 40px 60px; 
             justify-content: flex-start; overflow-y: auto; -webkit-overflow-scrolling: touch;
@@ -133,7 +135,7 @@
             .dash-logo { font-size: 30px; }
         }
 
-        /* ADAPTAÇÃO: SMARTPHONE DEITADO (LANDSCAPE) */
+        /* ADAPTAÇÃO: SMARTPHONE DEITADO (LANDSCAPE) E TVS */
         @media (max-height: 500px) and (orientation: landscape) {
             #dash-layer { padding: 20px 30px; }
             .top-bar { margin-bottom: 15px; height: 50px; }
@@ -465,7 +467,6 @@
                 if(App.globalData) cb(App.globalData); else { var act = (App.mode==='live')?'get_live_streams':(App.mode==='movie'?'get_vod_streams':'get_series'); App.req(App.creds.h+"/player_api.php?username="+App.creds.u+"&password="+App.creds.p+"&action="+act, function(d){ App.globalData=d; cb(d); }); }
             },
             
-            /* --- SISTEMA DE MAPEAMENTO DE TOQUE REVISADO --- */
             handleVideoTap: function(e) {
                 e.preventDefault();
                 var rect = e.currentTarget.getBoundingClientRect();
@@ -475,8 +476,6 @@
                 if (this.touchTimer === null) {
                     this.touchTimer = setTimeout(function() {
                         App.touchTimer = null;
-                        
-                        // Proteção: 1 Toque só Pausa se NÃO for TV Ao Vivo. Se for TV Ao Vivo, ignora totalmente.
                         if (App.mode !== 'live') {
                             App.togglePlay();
                         }
@@ -484,12 +483,10 @@
                 } else {
                     clearTimeout(this.touchTimer);
                     this.touchTimer = null;
-                    
                     if (App.mode !== 'live') { 
                         if (x < w * 0.3) { App.seek(-10); return; }
                         if (x > w * 0.7) { App.seek(10); return; }
                     }
-                    
                     App.toggleFull();
                 }
             },
@@ -520,7 +517,31 @@
                 document.querySelectorAll('.focused').forEach(function(e){e.classList.remove('focused')}); var el;
                 if(this.scr===0) el=document.getElementById('i'+this.idx); if(this.scr===1) el=document.getElementById('m'+this.idx); if(this.scr===3) el=document.getElementById('s'+this.idx);
                 if(this.scr===2) { if(this.zone===0) el=document.getElementById('c'+this.idx); if(this.zone===1) el=document.getElementById('search'); if(this.zone===2) el=document.getElementById('row-'+this.idx); if(this.zone===3) el=document.getElementById('vid-box'); }
-                if(el) { el.classList.add('focused'); if(el.tagName==='INPUT') { el.focus(); } else { var inps = document.querySelectorAll('input'); for(var i=0;i<inps.length;i++) inps[i].blur(); el.focus(); } if(el.tagName!=='INPUT') el.scrollIntoView({block:'center',behavior:'smooth'}); }
+                if(el) { 
+                    el.classList.add('focused'); 
+                    if(el.tagName==='INPUT') { 
+                        el.focus(); 
+                    } else { 
+                        var inps = document.querySelectorAll('input'); 
+                        for(var i=0;i<inps.length;i++) inps[i].blur(); 
+                        el.focus(); 
+                    } 
+                    
+                    /* --- SISTEMA MATEMÁTICO ANTI-BUG (CORREÇÃO DA TV PHILCO) --- */
+                    if(el.tagName!=='INPUT') {
+                        var parentContainer = el.parentElement;
+                        // Percorre os parentes até achar o que possui barra de rolagem
+                        while(parentContainer && parentContainer !== document.body) {
+                            var style = window.getComputedStyle(parentContainer);
+                            if(style.overflowY === 'auto' || style.overflowY === 'scroll') {
+                                // Pede apenas para o container rolar matematicamente, travando o resto da tela
+                                parentContainer.scrollTop = el.offsetTop - (parentContainer.clientHeight / 2) + (el.clientHeight / 2);
+                                break;
+                            }
+                            parentContainer = parentContainer.parentElement;
+                        }
+                    }
+                }
             },
             
             move: function(d) {
