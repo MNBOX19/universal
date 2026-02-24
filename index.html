@@ -331,7 +331,7 @@
         };
 
         var App = {
-            scr: 0, zone: 0, idx: 0, lastCatIdx: 0, creds: {}, fullData: [], storedList: [], memIdx: 0, globalData: null, isFolder: false, seriesEps: [], playingId: null, cfg: { filter: true }, userInfo: null,
+            scr: 0, zone: 0, idx: 0, lastCatIdx: 0, creds: {}, fullData: [], storedList: [], memIdx: 0, globalData: null, isFolder: false, seriesEps: [], playingId: null, cfg: { filter: true }, userInfo: null, searchTimer: null,
             init: function() {
                 FavManager.init();
                 if(localStorage.getItem('rc_cfg_filter')) this.cfg.filter = (localStorage.getItem('rc_cfg_filter') === 'true');
@@ -437,7 +437,7 @@
                             if(show) { count++; h += '<div class="cat-item" id="c'+count+'" data-id="'+d[i].category_id+'" onclick="App.catClick('+count+')">'+d[i].category_name+'</div>'; }
                         }
                         document.getElementById('cat-list').innerHTML = h;
-                        App.loadContent(0); 
+                        App.loadContent(1); // CORREÇÃO AQUI: Começa no índice 1 em vez de 0
                     }
                 });
             },
@@ -502,46 +502,30 @@
                 }
             },
 
-            playStream: function(item) {
-                var ext = (this.mode==='live')?'mp4':(item.container_extension||'mp4');
-                var type = (this.mode==='live')?'live':(this.mode==='movie'?'movie':'series');
-                var id = item.stream_id || item.id;
-                var url = this.creds.h+"/"+type+"/"+this.creds.u+"/"+this.creds.p+"/"+id+"."+ext;
-                
-                this.playingId = id; document.getElementById('meta-title').innerText = item.name || item.title;
-                document.getElementById('meta-desc').innerText = "Carregando..."; document.getElementById('meta-epg').classList.add('hide');
-                
-                if(this.mode === 'live') {
-                    url = this.creds.h+"/"+type+"/"+this.creds.u+"/"+this.creds.p+"/"+id+".m3u8";
-                    this.req(this.creds.h+"/player_api.php?username="+this.creds.u+"&password="+this.creds.p+"&action=get_short_epg&stream_id="+id, function(d){
-                        if(d && d.epg_listings && d.epg_listings.length > 0) {
-                            var t = d.epg_listings[0].title; try { if(window.atob && /^[A-Za-z0-9+/=]+$/.test(t)) t=atob(t); }catch(e){}
-                            document.getElementById('meta-epg').innerText = t; document.getElementById('meta-epg').classList.remove('hide');
-                        }
-                    });
-                }
-                PlayerEngine.play(url, this.mode==='live');
-                document.querySelectorAll('.item').forEach(function(e){e.classList.remove('playing')});
-                var r = document.getElementById('row-'+this.idx); if(r) r.classList.add('playing');
-                if(window.innerWidth <= 800) document.getElementById('vid-box').scrollIntoView({behavior: "smooth"});
-            },
-
             doSearch: function() {
-                var t = document.getElementById('search').value.toLowerCase();
-                if(t.length < 2 && this.globalData) { App.fullData = App.globalData; App.renderList(); return; }
-                if(t.length < 2) return;
-                document.getElementById('item-list').innerHTML = '<div style="padding:20px; text-align:center;">Buscando...</div>';
-                var cb = function(d) {
-                    if(d && d!=='ERR_NET') { 
-                        App.fullData = d.filter(function(x){ return (x.name||x.title||"").toLowerCase().indexOf(t) > -1 }); 
-                        App.isFolder = false; App.renderList(); 
+                // CORREÇÃO AQUI: Atraso inteligente para a pesquisa
+                clearTimeout(App.searchTimer);
+                
+                App.searchTimer = setTimeout(function() {
+                    var t = document.getElementById('search').value.toLowerCase();
+                    if(t.length < 2 && App.globalData) { App.fullData = App.globalData; App.renderList(); return; }
+                    if(t.length < 2) return;
+                    
+                    document.getElementById('item-list').innerHTML = '<div style="padding:20px; text-align:center;">Buscando...</div>';
+                    
+                    var cb = function(d) {
+                        if(d && d!=='ERR_NET') { 
+                            App.fullData = d.filter(function(x){ return (x.name||x.title||"").toLowerCase().indexOf(t) > -1 }); 
+                            App.isFolder = false; App.renderList(); 
+                        }
+                    };
+                    
+                    if(App.globalData) cb(App.globalData);
+                    else {
+                        var act = (App.mode==='live')?'get_live_streams':(App.mode==='movie'?'get_vod_streams':'get_series');
+                        App.req(App.creds.h+"/player_api.php?username="+App.creds.u+"&password="+App.creds.p+"&action="+act, function(d){ App.globalData=d; cb(d); });
                     }
-                };
-                if(App.globalData) cb(App.globalData);
-                else {
-                    var act = (App.mode==='live')?'get_live_streams':(App.mode==='movie'?'get_vod_streams':'get_series');
-                    App.req(App.creds.h+"/player_api.php?username="+App.creds.u+"&password="+App.creds.p+"&action="+act, function(d){ App.globalData=d; cb(d); });
-                }
+                }, 800);
             },
             
             toggleFull: function() {
