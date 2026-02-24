@@ -48,40 +48,40 @@
             background: #111; border: 1px solid #333; 
             border-radius: 12px; text-align: center; margin: auto;
         }
-        .logo-txt { font-size: clamp(24px, 5vw, 32px); font-weight: 900; letter-spacing: -1px; color:#fff; margin-bottom: 20px; }
+        .logo-txt { font-size: 28px; font-weight: 900; letter-spacing: -1px; color:#fff; margin-bottom: 20px; }
         .logo-txt span { color: var(--gold); }
         .inp { width: 100%; padding: 14px; margin: 8px 0; background: #222; border: 1px solid #444; color: #fff; text-align: center; font-weight: bold; border-radius: 6px; }
         
-        .config-row { display: flex; gap: 10px; margin: 10px 0; flex-wrap: wrap; }
-        .toggle-btn { flex: 1; padding: 12px; background: #1a1a1a; border: 1px solid #444; color: #888; font-size: 11px; font-weight: 800; text-transform: uppercase; border-radius: 6px; min-width: 120px;}
+        .config-row { display: flex; flex-wrap: wrap; margin: 10px 0; justify-content: center; }
+        .toggle-btn { flex: 1; padding: 12px; background: #1a1a1a; border: 1px solid #444; color: #888; font-size: 11px; font-weight: 800; text-transform: uppercase; border-radius: 6px; min-width: 120px; margin: 5px; }
         .toggle-btn.active { border-color: var(--gold); color: var(--gold); background: #222; }
         .btn { width: 100%; padding: 14px; margin-top: 15px; background: var(--gold); color: #000; border: none; font-weight: 900; border-radius: 6px; }
 
         .info-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; font-size: 14px; color: #ccc; flex-wrap: wrap; }
         .info-row span { font-weight: bold; color: var(--gold); }
 
-        #dash-layer { display: flex; flex-direction: column; padding: clamp(20px, 5vw, 40px); justify-content: space-between; min-height: 100%; }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
-        .dash-logo { font-size: clamp(28px, 6vw, 40px); font-weight: 900; }
+        #dash-layer { display: flex; flex-direction: column; padding: 40px; justify-content: space-between; min-height: 100%; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; }
+        .dash-logo { font-size: 36px; font-weight: 900; }
         .dash-logo span { color: var(--gold); }
         .dash-clock { text-align: center; }
-        .clock-time { font-size: clamp(20px, 5vw, 28px); font-weight: 700; color: #fff; }
+        .clock-time { font-size: 28px; font-weight: 700; color: #fff; }
         .clock-date { font-size: 12px; color: #888; text-transform: uppercase; font-weight: 600; margin-top: 5px; }
         .power-btn { font-size: 24px; color: #666; padding: 10px; border-radius: 50%; }
 
-        .dash-grid { display: flex; gap: 20px; justify-content: center; align-items: center; flex: 1; flex-wrap: wrap; align-content: center; }
+        .dash-grid { display: flex; justify-content: center; align-items: center; flex: 1; flex-wrap: wrap; align-content: center; }
         .smart-card { 
-            width: clamp(140px, 40vw, 240px); height: clamp(160px, 45vw, 280px);
+            width: 220px; height: 260px; margin: 15px;
             background: var(--card-bg); border: 2px solid #333; border-radius: 20px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
         .smart-card:hover { border-color: var(--gold); transform: translateY(-5px); }
-        .smart-card i { font-size: clamp(40px, 10vw, 70px); margin-bottom: 20px; color: #555; transition: color 0.3s; }
+        .smart-card i { font-size: 60px; margin-bottom: 20px; color: #555; transition: color 0.3s; }
         .smart-card:hover i { color: var(--gold); }
-        .smart-card span { font-size: clamp(14px, 3vw, 18px); font-weight: 800; text-transform: uppercase; color: #ccc; text-align: center; }
+        .smart-card span { font-size: 16px; font-weight: 800; text-transform: uppercase; color: #ccc; text-align: center; }
 
-        .bottom-bar { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 30px; flex-wrap: wrap; gap: 10px; }
-        .info-pill { background: rgba(255, 255, 255, 0.05); padding: 10px 20px; border-radius: 30px; border: 1px solid #333; }
+        .bottom-bar { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 30px; flex-wrap: wrap; }
+        .info-pill { background: rgba(255, 255, 255, 0.05); padding: 10px 20px; border-radius: 30px; border: 1px solid #333; margin: 5px; }
         .lbl { font-size: 10px; color: #888; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 3px; }
         .val { font-size: 14px; color: var(--gold); font-weight: 800; }
 
@@ -107,7 +107,7 @@
         video { width: 100%; height: 100%; background: #000; object-fit: contain; }
         
         .meta { padding: 25px; background: #080808; display: flex; flex-direction: column; border-top: 2px solid #333; max-height: 40vh; overflow-y: auto; }
-        .meta-title { font-size: clamp(18px, 4vw, 24px); color: var(--gold); font-weight: 800; margin-bottom: 10px; }
+        .meta-title { font-size: 22px; color: var(--gold); font-weight: 800; margin-bottom: 10px; }
         .meta-epg { font-size: 12px; background: #222; color: #fff; padding: 5px 10px; border-radius: 4px; display: inline-block; margin-bottom: 10px; }
         .meta-desc { font-size: 14px; color: #777; line-height: 1.5; }
         
@@ -119,6 +119,13 @@
         ::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
 
         @media (max-width: 800px) {
+            #dash-layer { padding: 20px; }
+            .dash-logo { font-size: 24px; }
+            .clock-time { font-size: 20px; }
+            .smart-card { width: 140px; height: 160px; margin: 10px; }
+            .smart-card i { font-size: 40px; margin-bottom: 15px; }
+            .smart-card span { font-size: 14px; }
+            
             #content-layer { flex-direction: column; }
             .col-play { order: 1; height: 35vh; flex: none; border-bottom: 2px solid var(--gold); }
             .meta { display: none; } 
@@ -392,7 +399,6 @@
                         App.creds={h:h,u:u,p:p}; localStorage.setItem('rc_h', h); localStorage.setItem('rc_u', u); localStorage.setItem('rc_p', p);
                         document.getElementById('info-exp').innerText = d.user_info.exp_date ? new Date(d.user_info.exp_date*1000).toLocaleDateString("pt-BR") : "Ilimitado";
                         
-                        // Atualiza as telas na dashboard
                         var conn = (d.user_info.active_cons || 0) + " / " + (d.user_info.max_connections || 1);
                         var elConn = document.getElementById('info-conn'); if(elConn) elConn.innerText = conn;
                         
@@ -482,7 +488,6 @@
                 }
                 document.getElementById('item-list').innerHTML = h;
                 
-                // Só atualiza o foco e muda de zona se NÃO for uma pesquisa
                 if (!fromSearch) {
                     this.zone = 2; if(!keepIdx) { this.idx = 0; } this.updateFocus();
                 }
@@ -531,10 +536,8 @@
             },
 
             doSearch: function() {
-                // Limpa o temporizador se o usuário continuar digitando
                 clearTimeout(this.searchTimer);
                 
-                // Aguarda 800 milissegundos após a última tecla antes de buscar
                 this.searchTimer = setTimeout(function() {
                     var t = document.getElementById('search').value.toLowerCase();
                     if(t.length < 2 && App.globalData) { App.fullData = App.globalData; App.renderList(false, true); return; }
@@ -546,7 +549,7 @@
                         if(d && d!=='ERR_NET') { 
                             App.fullData = d.filter(function(x){ return (x.name||x.title||"").toLowerCase().indexOf(t) > -1 }); 
                             App.isFolder = false; 
-                            App.renderList(true, true); // O 'true' no final avisa que é uma pesquisa para não roubar o foco
+                            App.renderList(true, true); 
                         }
                     };
                     
@@ -555,7 +558,7 @@
                         var act = (App.mode==='live')?'get_live_streams':(App.mode==='movie'?'get_vod_streams':'get_series');
                         App.req(App.creds.h+"/player_api.php?username="+App.creds.u+"&password="+App.creds.p+"&action="+act, function(d){ App.globalData=d; cb(d); });
                     }
-                }, 800); // Tempo de espera em milissegundos
+                }, 800); 
             },
             
             toggleFull: function() {
@@ -668,7 +671,6 @@
             }
         };
         
-        // Controle de eventos do teclado
         document.addEventListener('keydown', function(e) {
             var k=e.keyCode;
             if(document.activeElement.tagName === 'INPUT' && App.scr === 0) {
@@ -710,7 +712,6 @@
             if(k===406||k===66||k===275) { e.preventDefault(); App.setScr(1); } 
         });
 
-        // Controles de Toque Inteligentes
         var vidBox = document.getElementById('vid-box');
         var tapTimer = null;
         var lastTap = 0;
