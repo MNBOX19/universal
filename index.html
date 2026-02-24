@@ -331,7 +331,7 @@
         };
 
         var App = {
-            scr: 0, zone: 0, idx: 0, lastCatIdx: 0, creds: {}, fullData: [], storedList: [], memIdx: 0, globalData: null, isFolder: false, seriesEps: [], playingId: null, cfg: { filter: true }, userInfo: null,
+            scr: 0, zone: 0, idx: 0, lastCatIdx: 0, creds: {}, fullData: [], storedList: [], memIdx: 0, globalData: null, isFolder: false, seriesEps: [], playingId: null, cfg: { filter: true }, userInfo: null, searchTimer: null,
             init: function() {
                 FavManager.init();
                 if(localStorage.getItem('rc_cfg_filter')) this.cfg.filter = (localStorage.getItem('rc_cfg_filter') === 'true');
@@ -437,7 +437,7 @@
                             if(show) { count++; h += '<div class="cat-item" id="c'+count+'" data-id="'+d[i].category_id+'" onclick="App.catClick('+count+')">'+d[i].category_name+'</div>'; }
                         }
                         document.getElementById('cat-list').innerHTML = h;
-                        App.loadContent(0); 
+                        App.loadContent(count > 0 ? 1 : 0); 
                     }
                 });
             },
@@ -471,7 +471,7 @@
                 } else { this.req(this.creds.h+"/player_api.php?username="+this.creds.u+"&password="+this.creds.p+"&action="+actStr+"&category_id="+cid, onData); }
             },
 
-            renderList: function(keepIdx) {
+            renderList: function(keepIdx, fromSearch) {
                 var d = this.fullData; var max = d.length; 
                 if(max===0) { document.getElementById('item-list').innerHTML = '<div style="padding:20px; text-align:center;">Vazio</div>'; return; }
                 var h = '';
@@ -481,7 +481,11 @@
                     h += '<div class="item" id="row-'+i+'" onclick="App.itemClick('+i+')">'+n+icn+'</div>';
                 }
                 document.getElementById('item-list').innerHTML = h;
-                this.zone = 2; if(!keepIdx) { this.idx = 0; } this.updateFocus();
+                
+                // Só atualiza o foco e muda de zona se NÃO for uma pesquisa
+                if (!fromSearch) {
+                    this.zone = 2; if(!keepIdx) { this.idx = 0; } this.updateFocus();
+                }
             },
 
             itemClick: function(i) { this.idx=i; this.zone=2; this.clickItem(); },
@@ -527,21 +531,31 @@
             },
 
             doSearch: function() {
-                var t = document.getElementById('search').value.toLowerCase();
-                if(t.length < 2 && this.globalData) { App.fullData = App.globalData; App.renderList(); return; }
-                if(t.length < 2) return;
-                document.getElementById('item-list').innerHTML = '<div style="padding:20px; text-align:center;">Buscando...</div>';
-                var cb = function(d) {
-                    if(d && d!=='ERR_NET') { 
-                        App.fullData = d.filter(function(x){ return (x.name||x.title||"").toLowerCase().indexOf(t) > -1 }); 
-                        App.isFolder = false; App.renderList(); 
+                // Limpa o temporizador se o usuário continuar digitando
+                clearTimeout(this.searchTimer);
+                
+                // Aguarda 800 milissegundos após a última tecla antes de buscar
+                this.searchTimer = setTimeout(function() {
+                    var t = document.getElementById('search').value.toLowerCase();
+                    if(t.length < 2 && App.globalData) { App.fullData = App.globalData; App.renderList(false, true); return; }
+                    if(t.length < 2) return;
+                    
+                    document.getElementById('item-list').innerHTML = '<div style="padding:20px; text-align:center;">Buscando...</div>';
+                    
+                    var cb = function(d) {
+                        if(d && d!=='ERR_NET') { 
+                            App.fullData = d.filter(function(x){ return (x.name||x.title||"").toLowerCase().indexOf(t) > -1 }); 
+                            App.isFolder = false; 
+                            App.renderList(true, true); // O 'true' no final avisa que é uma pesquisa para não roubar o foco
+                        }
+                    };
+                    
+                    if(App.globalData) cb(App.globalData);
+                    else {
+                        var act = (App.mode==='live')?'get_live_streams':(App.mode==='movie'?'get_vod_streams':'get_series');
+                        App.req(App.creds.h+"/player_api.php?username="+App.creds.u+"&password="+App.creds.p+"&action="+act, function(d){ App.globalData=d; cb(d); });
                     }
-                };
-                if(App.globalData) cb(App.globalData);
-                else {
-                    var act = (App.mode==='live')?'get_live_streams':(App.mode==='movie'?'get_vod_streams':'get_series');
-                    App.req(App.creds.h+"/player_api.php?username="+App.creds.u+"&password="+App.creds.p+"&action="+act, function(d){ App.globalData=d; cb(d); });
-                }
+                }, 800); // Tempo de espera em milissegundos
             },
             
             toggleFull: function() {
