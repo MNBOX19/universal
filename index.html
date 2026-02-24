@@ -476,13 +476,9 @@
                     this.touchTimer = setTimeout(function() {
                         App.touchTimer = null;
                         
-                        // Proteção: 1 Toque só Pausa se NÃO for TV Ao Vivo
+                        // Proteção: 1 Toque só Pausa se NÃO for TV Ao Vivo. Se for TV Ao Vivo, ignora totalmente.
                         if (App.mode !== 'live') {
                             App.togglePlay();
-                        } else {
-                            // Se for TV ao Vivo, um toque apenas mostra as informações (OSD)
-                            var it = App.fullData[App.idx];
-                            if(it) App.osd(it.name || it.title || "TV AO VIVO");
                         }
                     }, 300);
                 } else {
